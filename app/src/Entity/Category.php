@@ -10,7 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\Table(name: "`category`")]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ["get", "post"],
+    itemOperations: ["get", "patch"]
+)]
 class Category extends AbstractEntity
 {
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "children")]
@@ -25,6 +28,11 @@ class Category extends AbstractEntity
     #[ORM\Column(name: "`description`", type: "string", length: 1000)]
     #[Assert\Length(min: 1, max: 1000)]
     private ?string $description;
+    
+    #[ORM\Column(name: "`is_active`", type: "boolean")]
+    #[Assert\NotNull]
+    #[Assert\Type("boolean")]
+    private bool $active = true;
     
     #[ORM\OneToMany(targetEntity: Category::class, mappedBy: "parent")]
     private iterable $children;
@@ -85,6 +93,24 @@ class Category extends AbstractEntity
     public function setDescription(?string $description): Category
     {
         $this->description = $description;
+        return $this;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+    
+    /**
+     * @param bool $active
+     * @return Category
+     */
+    public function setActive(bool $active): Category
+    {
+        $this->active = $active;
         return $this;
     }
     

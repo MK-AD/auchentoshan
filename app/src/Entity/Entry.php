@@ -11,7 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EntryRepository::class)]
 #[ORM\Table(name: "`entry`")]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ["get", "post"],
+    itemOperations: ["get", "patch", "delete"]
+)]
 class Entry extends AbstractEntity
 {
     #[ORM\ManyToOne(targetEntity: Entry::class, inversedBy: "children")]
@@ -25,6 +28,10 @@ class Entry extends AbstractEntity
     #[ORM\ManyToOne(targetEntity: Contact::class)]
     #[ORM\JoinColumn(name: "`contact_id`", referencedColumnName: "id")]
     private ?Contact $contact;
+    
+    #[ORM\ManyToOne(targetEntity: Savings::class, inversedBy: "entries")]
+    #[ORM\JoinColumn(name: "`savings_id", referencedColumnName: "id")]
+    private ?Savings $savings;
     
     #[ORM\ManyToOne(targetEntity: Category::class)]
     #[ORM\JoinColumn(name: "`category_id`", referencedColumnName: "id")]
@@ -95,6 +102,24 @@ class Entry extends AbstractEntity
     public function setContact(?Contact $contact): Entry
     {
         $this->contact = $contact;
+        return $this;
+    }
+    
+    /**
+     * @return Savings|null
+     */
+    public function getSavings(): ?Savings
+    {
+        return $this->savings;
+    }
+    
+    /**
+     * @param Savings|null $savings
+     * @return Entry
+     */
+    public function setSavings(?Savings $savings): Entry
+    {
+        $this->savings = $savings;
         return $this;
     }
     

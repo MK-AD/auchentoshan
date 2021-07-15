@@ -9,7 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BankRepository::class)]
 #[ORM\Table(name: "`bank`")]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ["get"],
+    itemOperations: ["get"]
+)]
 class Bank extends AbstractEntity
 {
     #[ORM\Column(name: "`record_number`", type: "integer")]

@@ -10,10 +10,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
 #[ORM\Table(name: "`budget`")]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ["get", "post"],
+    itemOperations: ["get", "patch"]
+)]
 class Budget extends AbstractEntity
 {
     #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(name: "`category_id`", referencedColumnName: "id")]
     private Category $category;
     
     #[ORM\Column(name: "`name`", type: "string", length: 255)]
@@ -28,7 +32,7 @@ class Budget extends AbstractEntity
     #[ORM\Column(name: "`amount`", type: "integer")]
     #[Assert\NotNull]
     #[Assert\Type("integer")]
-    #[Assert\GreaterThanOrEqual(0)]
+    #[Assert\GreaterThan(0)]
     private int $amount;
     
     #[ORM\Column(name: "`start_date`", type: "date", nullable: true)]
@@ -38,6 +42,11 @@ class Budget extends AbstractEntity
     #[ORM\Column(name: "`end_date`", type: "date", nullable: true)]
     #[Assert\Type("DateTime")]
     private ?DateTime $endDate;
+    
+    #[ORM\Column(name: "`is_active`", type: "boolean")]
+    #[Assert\NotNull]
+    #[Assert\Type("boolean")]
+    private bool $active = true;
     
     /**
      * @return Category
@@ -144,6 +153,24 @@ class Budget extends AbstractEntity
     public function setEndDate(?DateTime $endDate): Budget
     {
         $this->endDate = $endDate;
+        return $this;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+    
+    /**
+     * @param bool $active
+     * @return Budget
+     */
+    public function setActive(bool $active): Budget
+    {
+        $this->active = $active;
         return $this;
     }
 }

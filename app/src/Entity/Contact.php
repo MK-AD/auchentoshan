@@ -9,10 +9,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 #[ORM\Table(name: "`contact`")]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ["get", "post"],
+    itemOperations: ["get", "patch"]
+)]
 class Contact extends AbstractEntity
 {
-    #[ORM\OneToOne(targetEntity: Account::class, inversedBy: "contact")]
+    #[ORM\OneToOne(inversedBy: "contact", targetEntity: Account::class)]
     #[ORM\JoinColumn(name: "`account_id`", referencedColumnName: "id", onDelete: "CASCADE")]
     private ?Account $account;
     
@@ -24,6 +27,11 @@ class Contact extends AbstractEntity
     #[ORM\Column(name: "`description`", type: "string", length: 1000, nullable: true)]
     #[Assert\Length(min: 1, max: 1000)]
     private ?string $description;
+    
+    #[ORM\Column(name: "`is_active`", type: "boolean")]
+    #[Assert\NotNull]
+    #[Assert\Type("boolean")]
+    private bool $active = true;
     
     /**
      * @return Account|null
@@ -78,4 +86,25 @@ class Contact extends AbstractEntity
         $this->description = $description;
         return $this;
     }
+    
+    /**
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+    
+    /**
+     * @param bool $active
+     * @return Contact
+     */
+    public function setActive(bool $active): Contact
+    {
+        $this->active = $active;
+        return $this;
+    }
+    
+    
+    
 }
