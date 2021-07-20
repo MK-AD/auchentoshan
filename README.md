@@ -1,11 +1,13 @@
 # Auchentoshan
 
-* Docker
-* Apache 2
-* PHP 8.0-apache
-* MySQL 8.0
-* Symfony 5.2.11
-* API Platform 2.6.5
+_Docker, Apache 2, PHP 8, MySQL 8, Symfony 5, API Platform 2._
+
+**Auchentoshan distillery is a single malt whisky distillery in the west of Scotland. The name Auchentoshan is from 
+Gaelic Achadh an Oisein and translates as "corner of the field". The distillery is also known as "Glasgow's Malt 
+Whisky" due to its proximity to Glasgow and "the breakfast whisky" due to its sweet and delicate nature. Auchentoshan 
+is located at the foot of the Kilpatrick Hills on the outskirts of Clydebank in West Dunbartonshire near the Erskine 
+Bridge. It is one of six malt whisky distilleries in the Scottish Lowlands along with Bladnoch, Glenkinchie and 
+recently Daftmill Distillery, Annandale Distillery and Ailsa Bay Distillery.**
 
 ## Description
 
