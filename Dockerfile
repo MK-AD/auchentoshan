@@ -46,7 +46,7 @@ ENV PATH=/usr/logal/go/bin:$PATH \
     GOPATH=$HOME/go
 
 RUN go get github.com/mailhog/mhsendmail && cp $GOPATH/bin/mhsendmail /usr/bin/mhsendmail
-#RUN pecl install xdebug-${XDEBUG_VERSION} && docker-php-ext-enable xdebug
+RUN pecl install xdebug-${XDEBUG_VERSION} && docker-php-ext-enable xdebug
 
 COPY ./docker/php/php.ini /usr/local/etc/php
 COPY ./docker/php/xdebug.ini /usr/local/etc/php/conf.d/
