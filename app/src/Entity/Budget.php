@@ -4,50 +4,71 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BudgetRepository;
+use Carbon\Carbon;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
 #[ORM\Table(name: "`budget`")]
 #[ApiResource(
     collectionOperations: ["get", "post"],
-    itemOperations: ["get", "patch"]
+    itemOperations: [
+        "get" => ["normalization_context" => ["groups" => ["budget:read", "budget:item:get"]]],
+        "patch"
+    ],
+    denormalizationContext: ["groups" => ["budget:write"]],
+    normalizationContext: ["groups" => ["budget:read"]]
 )]
 class Budget extends AbstractEntity
 {
     #[ORM\ManyToOne(targetEntity: Category::class)]
     #[ORM\JoinColumn(name: "`category_id`", referencedColumnName: "id")]
+    #[Groups(["budget:item:get", "budget:write"])]
     private Category $category;
     
     #[ORM\Column(name: "`name`", type: "string", length: 255)]
     #[Assert\NotNull]
     #[Assert\Length(min: 1, max: 255)]
+    #[Groups(["budget:item:get", "budget:write"])]
     private string $name;
     
     #[ORM\Column(name: "`description`", type: "string", length: 1000, nullable: true)]
     #[Assert\Length(min: 1, max: 1000)]
+    #[Groups(["budget:item:get", "budget:write"])]
     private ?string $description;
     
     #[ORM\Column(name: "`amount`", type: "integer")]
     #[Assert\NotNull]
     #[Assert\Type("integer")]
     #[Assert\GreaterThan(0)]
+    #[Groups(["budget:item:get", "budget:write"])]
     private int $amount;
     
     #[ORM\Column(name: "`start_date`", type: "date", nullable: true)]
     #[Assert\Type("DateTime")]
+    #[Groups(["budget:item:get", "budget:write"])]
     private ?DateTime $startDate;
     
     #[ORM\Column(name: "`end_date`", type: "date", nullable: true)]
     #[Assert\Type("DateTime")]
+    #[Groups(["budget:item:get", "budget:write"])]
     private ?DateTime $endDate;
     
     #[ORM\Column(name: "`is_active`", type: "boolean")]
     #[Assert\NotNull]
     #[Assert\Type("boolean")]
+    #[Groups(["budget:item:get", "budget:write"])]
     private bool $active = true;
-    
+
+    #[Groups(["budget:read"])]
+    public function getId(): ?int
+    {
+        return parent::getId();
+    }
+
     /**
      * @return Category
      */
@@ -172,5 +193,25 @@ class Budget extends AbstractEntity
     {
         $this->active = $active;
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    #[Groups(["budget:item:get"])]
+    #[SerializedName("createdAt")]
+    public function getCreatedAtAgo(): ?string
+    {
+        return Carbon::instance($this->getCreatedAt())->diffForHumans();
+    }
+
+    /**
+     * @return string|null
+     */
+    #[Groups(["budget:item:get"])]
+    #[SerializedName("updatedAt")]
+    public function getUpdatedAtAgo(): ?string
+    {
+        return Carbon::instance($this->getUpdatedAt())->diffForHumans();
     }
 }
