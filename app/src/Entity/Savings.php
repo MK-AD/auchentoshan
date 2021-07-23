@@ -5,9 +5,12 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Enum\InstallmentFrequency;
 use App\Repository\SavingsRepository;
+use Carbon\Carbon;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -20,29 +23,37 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: "`savings`")]
 #[ApiResource(
     collectionOperations: ["get", "post"],
-    itemOperations: ["get", "patch", "delete"]
+    itemOperations: [
+        "get" => ["normalization_context" => ["groups" => ["savings:read", "savings:item:get"]]],
+        "patch",
+        "delete"
+    ]
 )]
 class Savings extends AbstractEntity
 {
     #[ORM\Column(name: "`name`", type: "string", length: 255)]
     #[Assert\NotNull]
     #[Assert\Length(min: 1, max: 255)]
+    #[Groups(["savings:item:get", "savings:write"])]
     private string $name;
     
     #[ORM\Column(name: "`description`", type: "string", length: 1000, nullable: true)]
     #[Assert\Length(min: 1, max: 1000)]
+    #[Groups(["savings:item:get", "savings:write"])]
     private ?string $description;
     
     #[ORM\Column(name: "`amount`", type: "integer")]
     #[Assert\NotNull]
     #[Assert\Type("integer")]
     #[Assert\GreaterThan(0)]
+    #[Groups(["savings:item:get", "savings:write"])]
     private int $amount;
     
     #[ORM\Column(name: "`installment`", type: "integer")]
     #[Assert\NotNull]
     #[Assert\Type("integer")]
     #[Assert\GreaterThan(0)]
+    #[Groups(["savings:item:get", "savings:write"])]
     private int $installment;
     
     /**
@@ -51,6 +62,7 @@ class Savings extends AbstractEntity
     #[ORM\Column(name: "`installment_frequency`", type: "string", length: 255)]
     #[Assert\NotNull]
     #[Assert\Choice(callback: [InstallmentFrequency::class, "getEnumMap"])]
+    #[Groups(["savings:item:get", "savings:write"])]
     private string $installmentFrequency;
     
     /**
@@ -58,6 +70,7 @@ class Savings extends AbstractEntity
      */
     #[ORM\Column(name: "`start_date`", type: "date", nullable: true)]
     #[Assert\Type("DateTime")]
+    #[Groups(["savings:item:get", "savings:write"])]
     private ?DateTime $startDate;
     
     /**
@@ -66,11 +79,19 @@ class Savings extends AbstractEntity
      */
     #[ORM\Column(name: "`end_date`", type: "date", nullable: true)]
     #[Assert\Type("DateTime")]
+    #[Groups(["savings:item:get", "savings:write"])]
     private ?DateTime $endDate;
     
     #[ORM\OneToMany(mappedBy: "savings", targetEntity: Entry::class)]
+    #[Groups(["savings:item:get", "savings:write"])]
     private iterable $entries;
-    
+
+    #[Groups(["savings:read"])]
+    public function getId(): ?int
+    {
+        return parent::getId();
+    }
+
     public function __construct()
     {
         $this->entries = new ArrayCollection();
@@ -236,5 +257,25 @@ class Savings extends AbstractEntity
         }
         
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    #[Groups(["savings:item:get"])]
+    #[SerializedName("createdAt")]
+    public function getCreatedAtAgo(): ?string
+    {
+        return Carbon::instance($this->getCreatedAt())->diffForHumans();
+    }
+
+    /**
+     * @return string|null
+     */
+    #[Groups(["savings:item:get"])]
+    #[SerializedName("updatedAt")]
+    public function getUpdatedAtAgo(): ?string
+    {
+        return Carbon::instance($this->getUpdatedAt())->diffForHumans();
     }
 }
