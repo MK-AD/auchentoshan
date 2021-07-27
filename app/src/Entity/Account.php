@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -10,6 +11,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Entity that represents the individual accounts (Bankkonten).
+ *
+ * @author Alexander Serbe <codiersklave@yahoo.de>
+ * @author Michael Kissinger <aquakami2005@googlemail.com>
+ */
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
 #[ORM\Table(name: "`account`")]
 #[ApiResource(
